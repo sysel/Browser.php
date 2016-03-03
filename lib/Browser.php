@@ -374,8 +374,8 @@ class Browser
     * Is the browser from facebook?
     * @return boolean True if the browser is from facebook otherwise false
     */
-    public function isFacebook() 
-    { 
+    public function isFacebook()
+    {
         return $this->_is_facebook;
     }
 
@@ -419,9 +419,9 @@ class Browser
      * Set the Browser to be a Facebook request
      * @param boolean $value is the browser a robot or not
      */
-    protected function setFacebook($value = true) 
-    { 
-        $this->_is_facebook = $value; 
+    protected function setFacebook($value = true)
+    {
+        $this->_is_facebook = $value;
     }
 
     /**
@@ -537,7 +537,7 @@ class Browser
             $this->checkBrowserLynx() ||
             $this->checkBrowserShiretoko() ||
             $this->checkBrowserIceCat() ||
-            $this->checkBrowserIceweasel() || 
+            $this->checkBrowserIceweasel() ||
             $this->checkBrowserW3CValidator() ||
             $this->checkBrowserMozilla() /* Mozilla is such an open standard that you must check it last */
         );
@@ -619,7 +619,7 @@ class Browser
         }
         return false;
     }
-    
+
     /**
      * Determine if the browser is the BingBot or not (last updated 1.9)
      * @return boolean True if the browser is the BingBot otherwise false
@@ -697,12 +697,12 @@ class Browser
      */
     protected function checkBrowserInternetExplorer()
     {
-	//  Test for IE11
-	if( stripos($this->_agent,'Trident/7.0; rv:11.0') !== false ) {
-		$this->setBrowser(self::BROWSER_IE);
-		$this->setVersion('11.0');
-		return true;
-	}
+        //  Test for IE11
+        if (stripos($this->_agent,'Trident/7.0; rv:11.0') !== false) {
+            $this->setBrowser(self::BROWSER_IE);
+            $this->setVersion('11.0');
+            return true;
+        }
         // Test for v1 - v1.5 IE
         else if (stripos($this->_agent, 'microsoft internet explorer') !== false) {
             $this->setBrowser(self::BROWSER_IE);
@@ -734,14 +734,14 @@ class Browser
                 return true;
             }
         } // Test for versions > IE 10
-		else if(stripos($this->_agent, 'trident') !== false) {
-			$this->setBrowser(self::BROWSER_IE);
-			$result = explode('rv:', $this->_agent);
+        else if(stripos($this->_agent, 'trident') !== false) {
+            $this->setBrowser(self::BROWSER_IE);
+            $result = explode('rv:', $this->_agent);
             if (isset($result[1])) {
                 $this->setVersion(preg_replace('/[^0-9.]+/', '', $result[1]));
                 $this->_agent = str_replace(array("Mozilla", "Gecko"), "MSIE", $this->_agent);
             }
-		} // Test for Pocket IE
+        } // Test for Pocket IE
         else if (stripos($this->_agent, 'mspie') !== false || stripos($this->_agent, 'pocket') !== false) {
             $aresult = explode(' ', stristr($this->_agent, 'mspie'));
             if (isset($aresult[1])) {
@@ -874,7 +874,6 @@ class Browser
         }
         return false;
     }
-
 
     /**
      * Determine if the browser is WebTv or not (last updated 1.7)
@@ -1262,10 +1261,10 @@ class Browser
      * Detect Version for the Safari browser on iOS devices
      * @return boolean True if it detects the version correctly otherwise false
      */
-    protected function getSafariVersionOnIos() 
+    protected function getSafariVersionOnIos()
     {
         $aresult = explode('/',stristr($this->_agent,'Version'));
-        if( isset($aresult[1]) ) 
+        if( isset($aresult[1]) )
         {
             $aversion = explode(' ',$aresult[1]);
             $this->setVersion($aversion[0]);
@@ -1278,10 +1277,10 @@ class Browser
      * Detect Version for the Chrome browser on iOS devices
      * @return boolean True if it detects the version correctly otherwise false
      */
-    protected function getChromeVersionOnIos() 
+    protected function getChromeVersionOnIos()
     {
         $aresult = explode('/',stristr($this->_agent,'CriOS'));
-        if( isset($aresult[1]) ) 
+        if( isset($aresult[1]) )
         {
             $aversion = explode(' ',$aresult[1]);
             $this->setVersion($aversion[0]);
