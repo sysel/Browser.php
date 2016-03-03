@@ -62,6 +62,7 @@ class Browser
     const BROWSER_OMNIWEB = 'OmniWeb'; // http://www.omnigroup.com/applications/omniweb/
     const BROWSER_FIREBIRD = 'Firebird'; // http://www.ibphoenix.com/
     const BROWSER_FIREFOX = 'Firefox'; // http://www.mozilla.com/en-US/firefox/firefox.html
+    const BROWSER_THUNDERBIRD = 'Thunderbird'; // https://www.mozilla.org/en-US/thunderbird/
     const BROWSER_ICEWEASEL = 'Iceweasel'; // http://www.geticeweasel.org/
     const BROWSER_SHIRETOKO = 'Shiretoko'; // http://wiki.mozilla.org/Projects/shiretoko
     const BROWSER_MOZILLA = 'Mozilla'; // http://www.mozilla.com/en-US/
@@ -389,10 +390,10 @@ class Browser
             $this->checkBrowserGaleon() ||
             $this->checkBrowserNetscapeNavigator9Plus() ||
             $this->checkBrowserFirefox() ||
+            $this->checkBrowserThunderbird() ||
             $this->checkBrowserEdge() ||
             $this->checkBrowserChrome() ||
             $this->checkBrowserOmniWeb() ||
-
             // common mobile
             $this->checkBrowserAndroid() ||
             $this->checkBrowseriPad() ||
@@ -989,6 +990,26 @@ class Browser
             } else if (preg_match("/Firefox$/i", $this->_agent, $matches)) {
                 $this->setVersion("");
                 $this->setBrowser(self::BROWSER_FIREFOX);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Determine if the browser is Thunderbird or not (last updated 1.7)
+     * @return boolean True if the browser is Thunderbird otherwise false
+     */
+    protected function checkBrowserThunderbird()
+    {
+        if (stripos($this->_agent, 'safari') === false) {
+            if (preg_match("/Thunderbird[\/ \(]([^ ;\)]+)/i", $this->_agent, $matches)) {
+                $this->setVersion($matches[1]);
+                $this->setBrowser(self::BROWSER_THUNDERBIRD);
+                return true;
+            } else if (preg_match("/Thunderbird$/i", $this->_agent, $matches)) {
+                $this->setVersion("");
+                $this->setBrowser(self::BROWSER_THUNDERBIRD);
                 return true;
             }
         }
