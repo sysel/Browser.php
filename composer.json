@@ -14,5 +14,8 @@
     ],
     "autoload": {
         "files": ["lib/Browser.php"]
+    },
+    "require-dev": {
+        "nette/tester": "^1.7"
     }
 }
