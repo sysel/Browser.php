@@ -78,10 +78,12 @@ class Browser
     const BROWSER_SLURP = 'Yahoo! Slurp'; // http://en.wikipedia.org/wiki/Yahoo!_Slurp
     const BROWSER_W3CVALIDATOR = 'W3C Validator'; // http://validator.w3.org/
     const BROWSER_BLACKBERRY = 'BlackBerry'; // http://www.blackberry.com/
+    const BROWSER_SAMSUNG = 'Samsung Browser'; // http://developer.samsung.com/technical-doc/view.do?v=T000000202
     const BROWSER_ICECAT = 'IceCat'; // http://en.wikipedia.org/wiki/GNU_IceCat
     const BROWSER_NOKIA_S60 = 'Nokia S60 OSS Browser'; // http://en.wikipedia.org/wiki/Web_Browser_for_S60
     const BROWSER_NOKIA = 'Nokia Browser'; // * all other WAP-based browsers on the Nokia Platform
     const BROWSER_MSN = 'MSN Browser'; // http://explorer.msn.com/
+    const BROWSER_SEZNAM = 'Seznam Browser'; // https://www.seznam.cz/aplikace/
     const BROWSER_MSNBOT = 'MSN Bot'; // http://search.msn.com/msnbot.htm
     const BROWSER_BINGBOT = 'Bing Bot'; // http://en.wikipedia.org/wiki/Bingbot
 
@@ -117,6 +119,7 @@ class Browser
     const PLATFORM_WINDOWS_PHONE_7 = 'Windows Phone 7';
     const PLATFORM_WINDOWS_PHONE_8 = 'Windows Phone 8';
     const PLATFORM_WINDOWS_PHONE_8_1 = 'Windows Phone 8.1';
+    const PLATFORM_WINDOWS_PHONE_10 = 'Windows Phone 10';
     //CONSOLES
     const PLATFORM_XMB = 'XrossMediaBar (Playstation 3|Playstation Portable)';
     const PLATFORM_LIVE_AREA = 'LiveArea (Playstation Vita)';
@@ -145,6 +148,9 @@ class Browser
     const PLATFORM_ANDROID_4_2 = 'Android 4.2 Jelly Bean';
     const PLATFORM_ANDROID_4_3 = 'Android 4.3 Jelly Bean';
     const PLATFORM_ANDROID_4_4 = 'Android 4.4 KitKat';
+    const PLATFORM_ANDROID_5_0 = 'Android 5.0 Lollipop';
+    const PLATFORM_ANDROID_5_1 = 'Android 5.1 Lollipop';
+    const PLATFORM_ANDROID_6_0 = 'Android 5.1 Marshmallow';
     //IOS
     const PLATFORM_IOS = 'iOS';
     const PLATFORM_IOS_4 = 'iOS 4';
@@ -152,6 +158,7 @@ class Browser
     const PLATFORM_IOS_6 = 'iOS 6';
     const PLATFORM_IOS_7 = 'iOS 7';
     const PLATFORM_IOS_8 = 'iOS 8';
+    const PLATFORM_IOS_9 = 'iOS 9';
     //MAC OS
     const PLATFORM_MAC = 'Mac OS';
     const PLATFORM_MAC_X = 'Mac OS X';
@@ -163,6 +170,7 @@ class Browser
     const PLATFORM_MAC_X_10_8 = 'Mac OS X 10.8 Mountain Lion';
     const PLATFORM_MAC_X_10_9 = 'Mac OS X 10.9 Mavericks';
     const PLATFORM_MAC_X_10_10 = 'Mac OS X 10.10 Yosemite';
+    const PLATFORM_MAC_X_10_11 = 'Mac OS X 10.11 El Capitan';
     //LINUX
     const PLATFORM_LINUX = 'Linux';
     const PLATFORM_LINUX_ARCH = 'Linux (Arch Linux)';
@@ -495,8 +503,6 @@ class Browser
             //     before Safari
             // (5) Netscape 9+ is based on Firefox so Netscape checks
             //     before FireFox are necessary
-            // (6) Edge must be checkd before Chrome due of usage of
-            //     same Chrome user agent
             $this->checkBrowserWebTv() ||
             $this->checkBrowserInternetExplorer() ||
             $this->checkBrowserOpera() ||
@@ -504,8 +510,7 @@ class Browser
             $this->checkBrowserNetscapeNavigator9Plus() ||
             $this->checkBrowserFirefox() ||
             $this->checkBrowserThunderbird() ||
-            $this->checkBrowserEdge() ||
-            $this->checkBrowserChrome() ||
+            $this->checkBrowserChromeBased() ||
             $this->checkBrowserOmniWeb() ||
             // common mobile
             $this->checkBrowserAndroid() ||
@@ -735,12 +740,19 @@ class Browser
             }
         } // Test for versions > IE 10
         else if(stripos($this->_agent, 'trident') !== false) {
-            $this->setBrowser(self::BROWSER_IE);
-            $result = explode('rv:', $this->_agent);
-            if (isset($result[1])) {
-                $this->setVersion(preg_replace('/[^0-9.]+/', '', $result[1]));
+            // Test for IE Mobile on Windows Phone
+            if (stripos($this->_agent, 'IEMobile') !== false) {
+                $this->setBrowser(self::BROWSER_POCKET_IE);
+                $this->setMobile(true);
+            } // Other IE
+            else {
+                $this->setBrowser(self::BROWSER_IE);
+            }
+            if (preg_match('/rv:([0-9\.]+)/', $this->_agent, $matches)) {
+                $this->setVersion($matches[1]);
                 $this->_agent = str_replace(array("Mozilla", "Gecko"), "MSIE", $this->_agent);
             }
+            return true;
         } // Test for Pocket IE
         else if (stripos($this->_agent, 'mspie') !== false || stripos($this->_agent, 'pocket') !== false) {
             $aresult = explode(' ', stristr($this->_agent, 'mspie'));
@@ -824,44 +836,28 @@ class Browser
     }
 
     /**
-     * Determine if the browser is Edge or not (last updated 1.7)
-     * @return boolean True if the browser is Edge otherwise false
+     * Determine if the browser is Chrome based or not
+     * @return boolean True if the browser is Chrome based otherwise false
      */
-    protected function checkBrowserEdge()
+    protected function checkBrowserChromeBased()
     {
-        if (stripos($this->_agent, 'Edge') !== false) {
-            $aresult = explode('/', stristr($this->_agent, 'Edge'));
-            if (isset($aresult[1])) {
-                $aversion = explode(' ', $aresult[1]);
-                $this->setVersion($aversion[0]);
-                $this->setBrowser(self::BROWSER_EDGE);
-                //Edge on Mobile
-                if (stripos($this->_agent, 'Android') !== false) {
-                    if (stripos($this->_agent, 'Mobile') !== false) {
-                        $this->setMobile(true);
-                    } else {
-                        $this->setTablet(true);
-                    }
-                }
-                return true;
-            }
-        }
-        return false;
-    }
+        $browser_array = array(
+            'Edge'              => self::BROWSER_EDGE,
+            'Seznam.cz'         => self::BROWSER_SEZNAM,
+            'SamsungBrowser'    => self::BROWSER_SAMSUNG,
+            'Chrome'            => self::BROWSER_CHROME,
+        );
 
-    /**
-     * Determine if the browser is Chrome or not (last updated 1.7)
-     * @return boolean True if the browser is Chrome otherwise false
-     */
-    protected function checkBrowserChrome()
-    {
-        if (stripos($this->_agent, 'Chrome') !== false) {
-            $aresult = explode('/', stristr($this->_agent, 'Chrome'));
+        foreach ($browser_array as $match => $browser_name) {
+            if (!stripos($this->_agent, $match))
+                continue;
+
+            $aresult = explode('/', stristr($this->_agent, $match));
             if (isset($aresult[1])) {
                 $aversion = explode(' ', $aresult[1]);
                 $this->setVersion($aversion[0]);
-                $this->setBrowser(self::BROWSER_CHROME);
-                //Chrome on Android
+                $this->setBrowser($browser_name);
+                // Chrome on Android
                 if (stripos($this->_agent, 'Android') !== false) {
                     if (stripos($this->_agent, 'Mobile') !== false) {
                         $this->setMobile(true);
@@ -1372,7 +1368,16 @@ class Browser
     protected function checkPlatform()
     {
         $os_array = array(
+            // windows phone masks as android
+            '/windows phone os 7/i'                 =>  self::PLATFORM_WINDOWS_PHONE_7,
+            '/windows phone 8\.1/i'                 =>  self::PLATFORM_WINDOWS_PHONE_8_1,
+            '/windows phone 8/i'                    =>  self::PLATFORM_WINDOWS_PHONE_8,
+            '/windows phone 10\.0/i'                =>  self::PLATFORM_WINDOWS_PHONE_10,
+            '/windows (mobile|phone)/i'             =>  self::PLATFORM_WINDOWS_MOBILE,
             //android
+            '/android (6\.0|kitkat)/i'              =>  self::PLATFORM_ANDROID_6_0,
+            '/android (5\.1|lollipop)/i'            =>  self::PLATFORM_ANDROID_5_1,
+            '/android (5\.0|lollipop)/i'            =>  self::PLATFORM_ANDROID_5_0,
             '/android (4\.4|kitkat)/i'              =>  self::PLATFORM_ANDROID_4_4,
             '/android 4\.3/i'                       =>  self::PLATFORM_ANDROID_4_3,
             '/android 4\.2/i'                       =>  self::PLATFORM_ANDROID_4_2,
@@ -1411,12 +1416,9 @@ class Browser
             '/win95|windows[ _]95/i'                =>  self::PLATFORM_WINDOWS_95,
             '/windows me|win 9x/i'                  =>  self::PLATFORM_WINDOWS_ME,
             '/win16|windows[ _]3/i'                 =>  self::PLATFORM_WINDOWS_3,
-            '/windows phone os 7/i'                 =>  self::PLATFORM_WINDOWS_PHONE_7,
-            '/windows phone 8.1/i'                  =>  self::PLATFORM_WINDOWS_PHONE_8_1,
-            '/windows phone 8/i'                    =>  self::PLATFORM_WINDOWS_PHONE_8,
-            '/windows (mobile|phone)/i'             =>  self::PLATFORM_WINDOWS_MOBILE,
             '/win/i'                                =>  self::PLATFORM_WINDOWS,
             //IOS
+            '/os 9/i'                               =>  self::PLATFORM_IOS_9,
             '/os 8/i'                               =>  self::PLATFORM_IOS_8,
             '/os 7/i'                               =>  self::PLATFORM_IOS_7,
             '/os 6/i'                               =>  self::PLATFORM_IOS_6,
@@ -1426,6 +1428,7 @@ class Browser
             '/ipod/i'                               =>  self::PLATFORM_IOS,
             '/ipad/i'                               =>  self::PLATFORM_IOS,
             //mac
+            '/mac os x 10[\._]11/i'                 =>  self::PLATFORM_MAC_X_10_11,
             '/mac os x 10[\._]10/i'                 =>  self::PLATFORM_MAC_X_10_10,
             '/mac os x 10[\._]9/i'                  =>  self::PLATFORM_MAC_X_10_9,
             '/mac os x 10[\._]8/i'                  =>  self::PLATFORM_MAC_X_10_8,
