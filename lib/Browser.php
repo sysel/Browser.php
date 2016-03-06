@@ -150,7 +150,7 @@ class Browser
     const PLATFORM_ANDROID_4_4 = 'Android 4.4 KitKat';
     const PLATFORM_ANDROID_5_0 = 'Android 5.0 Lollipop';
     const PLATFORM_ANDROID_5_1 = 'Android 5.1 Lollipop';
-    const PLATFORM_ANDROID_6_0 = 'Android 5.1 Marshmallow';
+    const PLATFORM_ANDROID_6_0 = 'Android 6.0 Marshmallow';
     //IOS
     const PLATFORM_IOS = 'iOS';
     const PLATFORM_IOS_4 = 'iOS 4';
